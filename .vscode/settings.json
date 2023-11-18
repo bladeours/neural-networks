@@ -1,0 +1,5 @@
+{
+  "cSpell.words": ["imread", "Perceptrons"],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.typeCheckingMode": "basic"
+}
