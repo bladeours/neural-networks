@@ -1,6 +1,7 @@
 from ast import Str
 from dataclasses import dataclass
 from itertools import permutations
+import re
 
 import cv2 as cv
 import random
@@ -18,7 +19,7 @@ class Perceptron:
 
 
 @dataclass
-class TrainImage:
+class Image:
     number: int
     data: list
 
@@ -30,7 +31,7 @@ def setup_logger():
     logging.getLogger().addHandler(handler)
     
 
-def get_files(full_path: str) -> list:
+def get_files(full_path: str) -> list[str]:
     files = []
     for path in os.listdir(full_path):
         joined_path = os.path.join(full_path, path)
@@ -39,22 +40,25 @@ def get_files(full_path: str) -> list:
     return files
 
 
+def get_image_vector(i: int, file: str) -> Image:
+    img = cv.imread(file, cv.IMREAD_GRAYSCALE)
+    img = cv.threshold(img, 127, 255, cv.THRESH_BINARY)[1]
+    img_list = img.tolist()
+    result = []
+    for row in img_list:
+        for p in row:
+            result.append(int(str(p).replace("0", "-1")))
+    return Image(i, result)
+
+
 def get_training_images() -> list:
-    path = "C:\\Users\\a826510\\OneDrive - ATOS\\projects\\neural-networks\\zad_1\\trainImages"
+    path = "C:\\Users\\a826510\\Desktop\\neural-network\\neural-networks\\zad_1\\trainImages"
     numbers = []
     for i, file in get_files(path):
-        img = cv.imread(file, cv.IMREAD_GRAYSCALE)
-        img //= 255  # type: ignore
-        img_list = img.tolist()
-        result = []
-        for row in img_list:
-            for p in row:
-                result.append(int(str(p).replace("0", "-1")))
-        numbers.append(TrainImage(i, result))
+        numbers.append(get_image_vector(int(i), file))
     return numbers
 
-
-def get_perceptrons(train_images: list[TrainImage]) -> list:
+def get_perceptrons(train_images: list[Image]) -> list[Perceptron]:
     perceptrons = []
     used = []
     for train_image in train_images:
@@ -70,14 +74,14 @@ def get_perceptrons(train_images: list[TrainImage]) -> list:
     return perceptrons
 
 
-def predict(train_image: TrainImage, perceptron: Perceptron) -> int:
-    result = sum(w * x for w, x in zip(perceptron.weights, train_image.data))
+def predict(image: Image, perceptron: Perceptron) -> int:
+    result = sum(w * x for w, x in zip(perceptron.weights, image.data))
     output = 1 if result > 0 else -1
     return output
 
 
 
-def train_perceptron(train_images: list[TrainImage], perceptron: Perceptron, learning_rate) -> int:
+def train_perceptron(train_images: list[Image], perceptron: Perceptron, learning_rate) -> int:
     error_counter = 0
     logging.debug(f"training {perceptron.number}...")
     for _ in range(15_000):
@@ -95,6 +99,7 @@ def train_perceptron(train_images: list[TrainImage], perceptron: Perceptron, lea
 setup_logger()
 train_images = get_training_images()
 perceptrons = get_perceptrons(train_images)
+
 learning_rate = 0.1
 
 for perceptron in perceptrons:
@@ -104,6 +109,8 @@ logging.debug("after training:")
 for perceptron in perceptrons:
     logging.debug(f"{perceptron.number} errors:{train_perceptron(train_images, perceptron, learning_rate)}")
     
+    
+for perceptron in perceptrons:
+    output = predict(get_image_vector(1, 'C:\\Users\\a826510\\Desktop\\neural-network\\neural-networks\\zad_1\\toCheck\\toCheck.jpg'), perceptron) 
+    print(f"perceptron: {perceptron.number}\t output: {output}")
 
-# TODO zrobic train_perceptron ktory zliczy error tzn podczas trenowania error == 0
-# powinien wystapic wiecej razy niz podczas drugiej proby
