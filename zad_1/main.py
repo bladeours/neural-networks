@@ -104,6 +104,6 @@ logging.debug("after training:")
 for perceptron in perceptrons:
     logging.debug(f"{perceptron.number} errors:{train_perceptron(train_images, perceptron, learning_rate)}")
     
-    
+
 # TODO zrobic train_perceptron ktory zliczy error tzn podczas trenowania error == 0
 # powinien wystapic wiecej razy niz podczas drugiej proby
