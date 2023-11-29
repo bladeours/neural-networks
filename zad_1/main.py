@@ -20,7 +20,6 @@ learning_rate = 0.1
 
 layout = []
 
-# Tworzenie przycisków i dodawanie ich do layoutu
 for i in range(6):
     row = [sg.Button("", size=(6, 3), key=(i, j), button_color=("white", "white"), pad=(0, 0)) for j in range(5)]
     layout.append(row)
