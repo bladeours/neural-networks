@@ -1,9 +1,5 @@
-from cgitb import reset
 from dataclasses import dataclass
-from re import T
-from typing import List, Tuple
 
-import PySimpleGUI as sg
 import cv2 as cv
 import random
 import os
@@ -61,8 +57,8 @@ def get_image_vector_from_list(img: list[list[int]]):
 
 
 def get_training_images() -> list:
-    # path = "C:\\Users\\a826510\\Desktop\\neural-network\\neural-networks\\zad_1\\trainImages"
-    path = "/home/rafal/projects/neural-networks/zad_1/trainImages"
+    path = "trainImages"
+    
     numbers = []
     for i, file in get_files(path):
         numbers.append(get_image_vector(int(i), file))
