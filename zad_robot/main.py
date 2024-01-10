@@ -28,10 +28,10 @@ class Perceptron:
         return f"{self.number}, {self.weights}"
 
     def initialize_weights(self):
-        self.weights = [random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1)]
+        self.weights = [random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1)]
 
     def activate(self, x, y) -> float:
-        activation = x * self.weights[0] + y * self.weights[1] + 1 * self.weights[2]  # bias na koncu
+        activation = x * self.weights[0] + y * self.weights[1] + 1  # bias na koncu
         return 1 / (1 + math.exp(-activation))
 
 
@@ -59,19 +59,22 @@ class RobotArm:
         self.hidden_perceptrons = []
         for i in range(num_hidden_layers):
             layer = [Perceptron(j, []) for j in range(2)]
-            for perceptron in layer:
-                perceptron.initialize_weights()
+            # for perceptron in layer:
+            #     perceptron.initialize_weights()
+            layer[0].weights = [0.15, 0.20]
+            layer[1].weights = [0.25, 0.30]
             self.hidden_perceptrons.append(layer)
 
         # Warstwa wyjściowa (x i y)
         self.output_perceptrons = [Perceptron(i, []) for i in range(2)]
         for perceptron in self.output_perceptrons:
             perceptron.initialize_weights()
+        self.output_perceptrons[0].weights = [0.4, 0.45]
+        self.output_perceptrons[1].weights = [0.50, 0.55]
 
     def __str__(self):
         return (
-            f"{self.r1}, {self.r2}, inputs: {self.input_perceptrons}, "
-            f"hidden: {self.hidden_perceptrons}, outputs: {self.output_perceptrons}"
+            f"{self.r1}, {self.r2}, hidden: {self.hidden_perceptrons}, outputs: {self.output_perceptrons}"
         )
 
     def calculate_end_point(self, alpha, beta) -> (float, float):
@@ -186,17 +189,32 @@ class RobotArm:
         self.hidden_perceptrons[0][1].weights[1] = w4
 
 
-test_date: list[data] = []
+# test_date: list[data] = []
 learning_rate = 0.05
 robot = RobotArm(5, 5, 2, learning_rate)
-for i in range(1000):
-    alpha = (random.randint(0, 180)/180.0) * 0.9
-    beta = (random.randint(0, 180)/180.0) * 0.9
-    x, y = robot.calculate_end_point(alpha, beta)
-    test_date.append(data(alpha, beta, x, y))
+# for i in range(1000):
+#     alpha = (random.randint(0, 180)/180.0) * 0.9
+#     beta = (random.randint(0, 180)/180.0) * 0.9
+#     x, y = robot.calculate_end_point(alpha, beta)
+#     test_date.append(data(alpha, beta, x, y))
 
 # Utwórz listy do przechowywania wartości funkcji kosztu w trakcie uczenia
 errors = []
+
+
+
+
+
+(output_a, output_b), (hidden_a, hidden_b) = robot.forward_pass_and_back(0.05, 0.10)
+    # Obliczenie błędu dla warstwy wyjściowej
+error_output = robot.calculate_error(output_a, output_b, 0.01, 0.99)
+
+# Aktualizacja wag w warstwie wyjściowej
+robot.update_weights_output_layer(output_a, output_b, 0.01, 0.99, output_a, output_b)
+# Aktualizacja wag w warstwach ukrytych na podstawie błędu wyjściowego
+robot.update_weights_hidden_layer(output_a, output_b, 0.01, 0.99, hidden_a, hidden_b, 0.05, 0.10)
+
+
 
 for i in range(100_000):
     rand = random.randint(0, len(test_date) - 1)
